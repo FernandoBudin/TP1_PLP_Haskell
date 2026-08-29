@@ -15,7 +15,7 @@ data Circuito = Caja     Caja
               | Paralelo Caja Circuito Circuito Caja
                   deriving Eq
 instance Show Circuito where
-    show = showDeCircuito
+    show = showDeCircuitoConEstructura
 
 showDeCircuito :: Circuito -> String
 showDeCircuito (Caja caja) = showDeCaja caja
@@ -46,37 +46,91 @@ cajaOn   = Caja on
 cajaOff  = Caja off
 cajaNada = Caja Nada
 
+-- agregado para testear el ejemplo
+ejemplo = Serie 
+  (Paralelo 
+    on  
+    (Paralelo 
+      off
+      cajaNada
+      cajaOn
+      on)
+    (Paralelo 
+      Nada 
+      cajaOn
+      cajaOff
+      Nada)
+    on)
+  cajaOn
+
+ejemplo2 = Serie
+  (Paralelo 
+    on  
+    (Paralelo 
+      off
+      cajaNada
+      cajaOn
+      on)
+    (Paralelo 
+      Nada 
+      cajaOn
+      cajaOff
+      Nada)
+    on)
+  (Serie
+    (Serie cajaOn cajaOff)
+    (Serie cajaOff cajaNada))
+
+
+ejemplo3 = Serie cajaOn (Serie (Serie cajaOn cajaOff) (Serie cajaOff cajaNada))
+ejemplo4 = Serie (Serie (Serie (Serie cajaOn cajaOn) cajaOff) cajaOff) cajaNada
 -- 1: recCircuito
 
-recCircuito = undefined -- TODO: COMPLETAR
+recCircuito :: (Caja -> b) -> (b -> b -> Circuito -> Circuito -> b) -> (Caja -> b -> b -> Caja -> Circuito -> Circuito -> b) -> Circuito -> b
+recCircuito fCaja fSerie fParalelo circuito = case circuito of 
+  Caja caja -> fCaja caja
+  Serie ci1 ci2 -> fSerie (rec ci1) (rec ci2) ci1 ci2
+  Paralelo ca1 ci1 ci2 ca2 -> fParalelo ca1 (rec ci1) (rec ci2) ca2 ci1 ci2
+  where rec = recCircuito fCaja fSerie fParalelo
 
 -- 2: foldCircuito
 
-foldCircuito = undefined -- TODO: COMPLETAR
+foldCircuito :: (Caja -> b) -> (b -> b -> b) -> (Caja -> b -> b -> Caja -> b) -> Circuito -> b
+foldCircuito fCaja fSerie fParalelo = recCircuito fCaja (\ci1rec ci2rec _ _ -> fSerie ci1rec ci2rec) (\ca1 ci1rec ci2rec ca2 _ _ -> fParalelo ca1 ci1rec ci2rec ca2)
 
 -- 3 invertido
 
-invertido = undefined -- TODO: COMPLETAR
+invertido :: Circuito -> Circuito
+invertido = foldCircuito Caja (flip Serie) (\ca1 ci1rec ci2rec ca2 -> Paralelo ca2 ci2rec ci1rec ca1)
 
 -- 4: hayCaminoIluminado
 
-hayCaminoIluminado = undefined -- TODO: COMPLETAR
+hayCaminoIluminado :: Circuito -> Bool
+hayCaminoIluminado = foldCircuito (== on) (&&) (\ca1 ci1rec ci2rec ca2 -> ca1 == on && (ci1rec || ci2rec) && ca2 == on) 
 
 -- 5: cantidadPrendidas
 
-cantidadPrendidas = undefined -- TODO: COMPLETAR
+cantidadPrendidas :: Circuito -> Int
+cantidadPrendidas = foldCircuito (\ca -> sumarPrendida ca) (+) (\ca1 ci1rec ci2rec ca2 -> sumarPrendida ca1 + ci1rec + ci2rec + sumarPrendida ca2)
+  where sumarPrendida ca = if ca == on then 1 else 0
 
 -- 6: cajasDeCircuito
 
-cajasDeCircuito = undefined -- TODO: COMPLETAR
+cajasDeCircuito :: Circuito -> [Caja]
+cajasDeCircuito = foldCircuito (: []) (++) (\ca1 ci1rec ci2rec ca2 -> [ca1] ++ ci1rec ++ ci2rec ++ [ca2])
 
 -- 7: esCircuitoProlijo
 
-esCircuitoProlijo = undefined -- TODO: COMPLETAR
+esSerie :: Circuito -> Bool
+esSerie = foldCircuito (const False) (\_ _ -> True) (\_ _ _ _ -> False)
+
+esCircuitoProlijo :: Circuito -> Bool
+esCircuitoProlijo = recCircuito (const True) (\ci1rec ci2rec _ ci2 -> (not $ esSerie ci2) && ci1rec && ci2rec) (\_ ci1rec ci2rec _ _ _ -> ci1rec && ci2rec)
 
 -- 8: circuitoEmprolijado
 
-circuitoEmprolijado = undefined -- TODO: COMPLETAR
+circuitoEmprolijado :: Circuito -> Circuito
+circuitoEmprolijado = undefined
 
 -- 9: tienenLaMismaEstructura 
 
@@ -111,8 +165,3 @@ not :: Bool -> Bool
 -- TODO: COMPLETAR
 
 --}
-
-
-
-{-- mensaje de prueba 
-{
