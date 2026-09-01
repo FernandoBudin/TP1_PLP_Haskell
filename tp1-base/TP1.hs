@@ -134,7 +134,19 @@ circuitoEmprolijado = undefined
 
 -- 9: tienenLaMismaEstructura 
 
-tienenLaMismaEstructura = undefined -- TODO: COMPLETAR
+tienenLaMismaEstructura :: Circuito -> Circuito -> Bool
+tienenLaMismaEstructura = foldCircuito (\_ -> \circuito -> case circuito of
+                                                            Caja _ -> True
+                                                            Serie _ _ -> False
+                                                            Paralelo _ _ _ _ -> False)
+                                       (\c1rec c2rec -> \circuito -> case circuito of
+                                                                      Caja _ -> False
+                                                                      Serie c1 c2 -> c1rec c1 && c2rec c2
+                                                                      Paralelo _ _ _ _ -> False)
+                                       (\_ c1rec c2rec _ -> \circuito -> case circuito of
+                                                                              Caja _ -> False
+                                                                              Serie _ _ -> False
+                                                                              Paralelo _ c1 c2 _ -> c1rec c1 && c2rec c2)
 
 -- 10: subCircuitoMásResistente
 
