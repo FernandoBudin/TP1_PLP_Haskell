@@ -84,6 +84,16 @@ ejemplo2 = Serie
 
 ejemplo3 = Serie cajaOn (Serie (Serie cajaOn cajaOff) (Serie cajaOff cajaNada))
 ejemplo4 = Serie (Serie (Serie (Serie cajaOn cajaOn) cajaOff) cajaOff) cajaNada
+
+--ejemplo para testear el ej10 (podes ir cambiando los valores de las cajas y comprobar con los calculos que devuelve correctamente)
+
+ejemplo5 =
+  Paralelo
+    on
+    (Paralelo on (Serie cajaOff cajaOn) cajaOff on)
+    (Paralelo off cajaOn (Serie cajaOff cajaOff) on)
+    off
+
 -- 1: recCircuito
 
 recCircuito :: (Caja -> b) -> (b -> b -> Circuito -> Circuito -> b) -> (Caja -> b -> b -> Caja -> Circuito -> Circuito -> b) -> Circuito -> b
@@ -129,16 +139,53 @@ esCircuitoProlijo = recCircuito (const True) (\ci1rec ci2rec _ ci2 -> (not $ esS
 
 -- 8: circuitoEmprolijado
 
+circuitoIzq :: Circuito -> Circuito
+circuitoIzq ci = case ci of
+  Serie ci1 _ -> ci1
+  _ -> ci
+
+circuitoDer :: Circuito -> Circuito
+circuitoDer ci = case ci of
+  Serie _ ci2 -> ci2
+  _ -> ci
+
 circuitoEmprolijado :: Circuito -> Circuito
 circuitoEmprolijado = undefined
 
 -- 9: tienenLaMismaEstructura 
 
-tienenLaMismaEstructura = undefined -- TODO: COMPLETAR
+tienenLaMismaEstructura :: Circuito -> Circuito -> Bool
+tienenLaMismaEstructura = foldCircuito 
+  (\_ -> \circuito -> case circuito of
+    Caja caja -> True
+    _ -> False
+    )
+  (\cirec cdrec -> \circuito -> case circuito of
+    Serie ci' cd' -> cirec ci' && cdrec cd'
+    _ -> False
+    ) 
+  (\_ cirec cdrec _ -> \circuito -> case circuito of
+    Paralelo _ ci' cd' _ -> cirec ci' && cdrec cd'
+    _ -> False
+    )
 
 -- 10: subCircuitoMásResistente
 
-subCircuitoMásResistente = undefined -- TODO: COMPLETAR
+resistenciaCircuito :: Circuito -> Float
+resistenciaCircuito = foldCircuito 
+  (\ce -> case ce of
+    Bombilla b -> if b then 10 else 2
+    Nada -> 1
+    )
+  (+) 
+  (\_ cirec cdrec _ -> (cirec + cdrec) / 2)
+
+subCircuitoMasResistente :: Circuito -> Circuito
+subCircuitoMasResistente = recCircuito 
+  Caja 
+  (\cirec cdrec ci cd -> masResistente (Serie ci cd) cirec cdrec)
+  (\ce cirec cdrec cs ci cd -> masResistente (Paralelo ce ci cd cs) cirec cdrec)
+    where masResistente circuito izq der = if resistenciaCircuito circuito > max (resistenciaCircuito izq) (resistenciaCircuito der) then circuito else (if resistenciaCircuito izq > resistenciaCircuito der then izq else der)
 
 {-- 11: Demostrar: alternado . alternado = id
 
