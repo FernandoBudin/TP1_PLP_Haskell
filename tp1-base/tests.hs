@@ -62,8 +62,24 @@ testsTienenLaMismaEstructura = TestList -- TODO: AGREGAR
 
 testsSubCircuitoMásResistente :: Test
 testsSubCircuitoMásResistente = TestList -- TODO: AGREGAR
-  [
-    
+  [ "Caja simple" ~: 
+        subCircuitoMasResistente cajaOn ~?= cajaOn,
+
+    -- 2. Caso Serie (El total suma más que las partes)
+    "Serie gana contra subcircuitos" ~: 
+        subCircuitoMasResistente (Serie cajaOn cajaOff) ~?= Serie cajaOn cajaOff,
+
+    -- 3. Caso Paralelo (La división reduce la resistencia total)
+    "Rama interna le gana al Paralelo completo" ~: 
+        subCircuitoMasResistente (Paralelo Nada cajaOn cajaOff Nada) ~?= cajaOn,
+
+    -- 4. Caso Complejo (Un paralelo anidado pierde contra una de sus ramas)
+    "Serie profunda gana en circuito mayor" ~:
+        subCircuitoMasResistente (Serie cajaNada (Serie cajaOn cajaOff)) ~?= Serie cajaOn cajaOff,
+
+    -- 5. Caso Paralelo Pesado (Los extremos suman suficiente para que gane el total)
+    "Paralelo complejo gana absoluto" ~:
+        subCircuitoMasResistente (Paralelo on (Serie cajaOn cajaOn) cajaOff off) ~?= Paralelo on (Serie cajaOn cajaOn) cajaOff off
   ]
 
 tests :: Test
