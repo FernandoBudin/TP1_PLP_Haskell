@@ -276,16 +276,16 @@ Quiero ver que: Q(Bombilla b) ≡ cajaAlternada (cajaAlternada (Bombilla b)) = i
                         {CAB} ≡ cajaAlternada (Bombilla (not b)) id (Bombilla b)
                         {CAB} ≡ Bombilla (not (not b)) = id (Bombilla b)
 Por Lema de generacion de Bool, analizo los casos:
-A) b == True
-B) b == False
+A) b = True
+B) b = False
 
-A) Caso (b == True):
+A) Caso (b = True):
 Quiero ver que: Bombilla (not (not True)) = id (Bombilla True)
          {NT} ≡ Bombilla (not False) = id (Bombilla True)
          {NF} ≡ Bombilla True = id (Bombilla True)
           {I} ≡ Bombilla True = Bombilla True
 
-B) Caso (b == False):
+B) Caso (b = False):
 Quiero ver que: Bombilla (not (not False)) = id (Bombilla False)
          {NT} ≡ Bombilla (not True) = id (Bombilla False)
          {NF} ≡ Bombilla False = id (Bombilla False)
