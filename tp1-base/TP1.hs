@@ -275,21 +275,21 @@ Quiero ver que: Q(Nada) ≡ cajaAlternada (cajaAlternada Nada) = id Nada
 Quiero ver que: Q(Bombilla b) ≡ cajaAlternada (cajaAlternada (Bombilla b)) = id (Bombilla b)
                         {CAB} ≡ cajaAlternada (Bombilla (not b)) id (Bombilla b)
                         {CAB} ≡ Bombilla (not (not b)) = id (Bombilla b)
-Por Lema de generacion de Bool, basta ver si:
-A) Q(Bombilla True)
-B) Q(Bombilla False)
+Por Lema de generacion de Bool, analizo los casos:
+A) b == True
+B) b == False
+
+A) Caso (b == True):
+Quiero ver que: Bombilla (not (not True)) = id (Bombilla True)
+         {NT} ≡ Bombilla (not False) = id (Bombilla True)
+         {NF} ≡ Bombilla True = id (Bombilla True)
+          {I} ≡ Bombilla True = Bombilla True
+
+B) Caso (b == False):
+Quiero ver que: Bombilla (not (not False)) = id (Bombilla False)
+         {NT} ≡ Bombilla (not True) = id (Bombilla False)
+         {NF} ≡ Bombilla False = id (Bombilla False)
+          {I} ≡ Bombilla False = Bombilla False
 Entonces ∀b :: Bool . Q(Bombilla b)
-
-A) Caso (Bombilla True):
-Quiero ver que: Q(Bombilla True) ≡ Bombilla (not (not True)) = id (Bombilla True)
-                            {NT} ≡ Bombilla (not False) = id (Bombilla True)
-                            {NF} ≡ Bombilla True = id (Bombilla True)
-                             {I} ≡ Bombilla True = Bombilla True
-
-B) Caso (Bombilla False):
-Quiero ver que: Q(Bombilla False) ≡ Bombilla (not (not False)) = id (Bombilla False)
-                             {NT} ≡ Bombilla (not True) = id (Bombilla False)
-                             {NF} ≡ Bombilla False = id (Bombilla False)
-                              {I} ≡ Bombilla False = Bombilla False
 Luego queda probado que ∀caja :: Caja . Q(caja) al haber demostrado el LEMA para cada constructor del tipo Caja. 
 --}
